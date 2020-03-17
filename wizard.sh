@@ -1,3 +1,4 @@
+ 
 #! /usr/bin/sh
 
 
@@ -15,34 +16,52 @@ touch ~/.mutt/$path/${email}.signature
 echo "okay " $path "created"
 echo "Which email host you are using? "
 read host
+
+IMAP_PORT = 993
+SMTP_PORT = 465
+
 if [ $host == "gmail" ]
 then
 	printf "Type in your gmail account: "
 	read email
-
-fi
-#if [ $host == "yahoo" ]
-#then
-##	read email
-
-#fi
-printf "Your in-App password: " 
-read -s pass 
-
-tee -a ~/.mutt/${path}/mail1 >/dev/null << END
-set imap_user =		'${email}@${host}.com'
-set imap_pass =		'${pass}'
-set smtp_url  =		'smtps://$email@smtp.gmail.com:465/'
-set smtp_pass =		'${pass}'
-set from =			'${email}@${host}.com'
-set realname =		'${realname}'
-set spoolfile = 	'+INBOX'
-set postponed =		'+[Gmail]Drafts'
-set header_cache =	~/.mutt/${path}/cache/headers
-set message_cachedir =	~/.mutt/${path}/cache/bodies
-set certificate_file =	~/.mutt/${path}/certificates
-set signature =		~/.mutt/${path}/${email}.signature
+	printf "Your in-App password: "
+	read -s pass
+	tee -a ~/.mutt/${path}/mail1 >/dev/null << END
+    set imap_user =		'${email}@${host}.com'
+	set imap_pass =		'${pass}'
+	set smtp_url  =		'smtps://${email}@smtp.${host}.com:${SMTP_PORT}/'
+	set smtp_pass =		'${pass}'
+	set from =			'${email}@${host}.com'
+	set realname =		'${realname}'
+	set spoolfile = 	'+INBOX'
+	set postponed =		'+[Gmail]Drafts'
+	set header_cache =	~/.mutt/${path}/cache/headers
+	set message_cachedir =	~/.mutt/${path}/cache/bodies
+	set certificate_file =	~/.mutt/${path}/certificates
+	set signature =		~/.mutt/${path}/${email}.signature
 END
+elif [ $host == "yahoo" ]
+then
+	printf "Type in your yahoo account: "
+	read email
+ 	printf "Your in-App password: "
+	read -s pass
+	tee -a ~/.mutt/${path}/mail1 >/dev/null << END
+   	set imap_user =		'${email}@${host}.com'
+	set imap_pass =		'${pass}'
+	set smtp_url  =		'smtps://${email}@smtp.mail.${host}.com:${SMTP_PORT}'
+	set smtp_pass =		'${pass}'
+	set from =			'${email}@${host}.com'
+	set realname =		'${realname}'
+	set spoolfile = 	'+INBOX'
+	set postponed =		'+Drafts'
+	set header_cache =	~/.mutt/${path}/cache/headers
+	set message_cachedir =	~/.mutt/${path}/cache/bodies
+	set certificate_file =	~/.mutt/${path}/certificates
+	set signature =		~/.mutt/${path}/${email}.signature
+END
+fi
+
 tee -a ~/.config/mutt/muttrc >/dev/null << END
 # Import color for mutt
 source ~/.config/mutt/color.muttrc
@@ -51,7 +70,7 @@ source ~/.config/mutt/color.muttrc
 set editor = "vim"
 
 # Initialize mailbox host
-set folder = "imaps://imap.gmail.com:993"
+set folder = "imaps://imap.${email}.com:${IMAP_PORT}"
 
 # General setting
 set ssl_starttls = yes
@@ -171,3 +190,4 @@ END
 #sudo mv color.muttrc mailcap muttrc ~/.config/mutt
 #sudo mv mail1 ~/.mutt/${path}/cache
 echo "File generation is completed"
+
